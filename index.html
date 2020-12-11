@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../vue.js"></script>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <div id="app">
+        <div v-for="(goods, goodsIndex) in goodsList" class="goods" :key="goods.id">
+            <div class="title">{{ goods.title }}:</div>
+            <ul class="type-list">
+                <li :class="{active: typeIndex === goods.index}" class="type"
+                    v-for="(type, typeIndex) in goods.typeList" :key="type"
+                    @click="addFilter(goods, typeIndex, type, goodsIndex)">{{ type }}</li>
+            </ul>
+        </div>
+        <div class="choose-type">
+            已选条件:
+            <span v-if="!showFilterGoods" class="no-goods">暂时没有选择过滤的条件</span>
+            <ul class="filter-list">
+                <li v-for="(filter, goodsKey) in filterObj">
+                    {{ filter }}
+                    <span class="delete-goods" @click="deleteFilterGoods(goodsKey)">X</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                filterObj: {},
+                showFilterGoods: false,
+                goodsList: [
+                    {
+                        title: '上装',
+                        typeList: ['全部', '针织衫', '毛呢外套', 'T恤', '羽绒服', '棉衣', '卫衣', '风衣'],
+                        id: 1,
+                    },
+                    {
+                        title: '裤装',
+                        typeList: ['全部', '牛仔裤', '小脚/铅笔裤', '休闲裤', '打底裤', '哈伦裤'],
+                        id: 2,
+                    },
+                    {
+                        title: '裙装',
+                        typeList: ['全部', '连衣裙', '半身裙', '长袖连衣裙', '中长款连衣裙'],
+                        id: 3,
+                    }
+                ]
+            },
+            methods: {
+                addFilter(goods, typeIndex, type, goodsIndex) {
+                    if (type === '全部') {
+                        return;
+                    }else{
+                        this.showFilterGoods = true;
+                        goods.index = typeIndex;
+                        vm.$set(this.filterObj, goodsIndex, type);
+                    }
+                },
+                deleteFilterGoods(goodsKey){
+                    this.$delete(this.filterObj, goodsKey);
+                    this.goodsList[goodsKey].index = 0;
+                    this.changeShowFilter();
+                },
+                changeShowFilter(){
+                    const filterObjectStr = JSON.stringify(this.filterObj);
+                    this.showFilterGoods = filterObjectStr !== '{}'
+                }
+            }
+        })
+
+        vm.goodsList.forEach(item => vm.$set(item, 'index', 0))
+        console.log(vm.goodsList);
+    </script>
+</body>
+
+</html>
